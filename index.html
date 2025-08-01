@@ -119,7 +119,10 @@
         <div id="score">Rezultat: <span id="scoreNum">0</span></div>
         <canvas id="gameCanvas" width="350" height="160"></canvas>
         <button id="restartBtn" style="display:none;">Ponovo</button>
-        <audio id="sliceSound" src="slice.mp3" preload="auto"></audio>
+        <audio id="sliceSound" preload="auto">
+            <source src="slice.m4a" type="audio/mp4">
+            <source src="slice.mp3" type="audio/mpeg">
+        </audio>
     </div>
     <div class="footer">
         &copy; 2024 | Buza igra | harisbasic404
@@ -217,7 +220,10 @@
     function trySlice(x, y, px, py) {
         if(!head.alive) return;
         if(pointInHead(x, y) || (px && pointInHead(px, py))) {
-            if (sliceSound) { sliceSound.currentTime = 0; sliceSound.play(); }
+            if (sliceSound) {
+                sliceSound.currentTime = 0;
+                sliceSound.play();
+            }
             head.sliced = true;
             score++;
             scoreNum.textContent = score;
