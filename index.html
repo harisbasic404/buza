@@ -13,7 +13,7 @@
             padding: 0;
         }
         .container {
-            max-width: 430px;
+            max-width: 400px;
             margin: 24px auto 0;
             padding: 18px 18px 12px 18px;
             border-radius: 12px;
@@ -37,32 +37,16 @@
             color: #fff;
             font-size: 1.15rem;
             text-align: right;
-            margin-bottom: 2px;
-        }
-        #timer {
-            color: #f9d923;
-            font-size: 1.3rem;
-            text-align: left;
-            font-weight: bold;
-            margin-bottom: 2px;
-            letter-spacing: 1px;
-            user-select: none;
-        }
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 7px;
+            margin-bottom: 4px;
         }
         #gameCanvas {
             display: block;
             margin: 0 auto;
             background: #1a1c23;
             border-radius: 14px;
-            width: 380px;
-            height: 180px;
-            max-width: 99vw;
-            max-height: 50vw;
+            width: 350px;
+            height: 160px;
+            max-width: 98vw;
             box-shadow: 0 2px 12px #0004;
             touch-action: none;
         }
@@ -96,6 +80,7 @@
             border: none;
             cursor: pointer;
             outline: none;
+            margin-bottom: 7px;
             padding: 0 4px;
         }
         #fullscreenBtn svg {
@@ -113,23 +98,11 @@
                 max-width: 100vw;
             }
             #gameCanvas {
-                width: 99vw !important;
-                height: 49vw !important;
+                width: 98vw !important;
+                height: 46vw !important;
                 min-height: 160px !important;
                 max-width: 100vw;
                 max-height: 340px;
-            }
-            .top-bar {
-                margin-bottom: 5px;
-            }
-            #game-title {
-                font-size: 1.5rem;
-            }
-            #timer {
-                font-size: 1.15rem;
-            }
-            #score {
-                font-size: 1.07rem;
             }
         }
     </style>
@@ -137,20 +110,16 @@
 <body>
 <div class="container">
     <div class="game-container">
-        <div class="top-bar">
-            <span id="timer">VRIJEME: 30</span>
+        <div style="text-align:right;">
             <button id="fullscreenBtn" title="Prikaži u punom ekranu">
-                <svg height="26" width="26" viewBox="0 0 24 24" fill="#fff"><path d="M7 14H5v5h5v-2H7v-3zm12 5h-3v2h5v-5h-2v3zM7 5h3V3H5v5h2V5zm12 0v3h2V3h-5v2h3z"/></svg>
+                <svg height="28" width="28" viewBox="0 0 24 24" fill="#fff"><path d="M7 14H5v5h5v-2H7v-3zm12 5h-3v2h5v-5h-2v3zM7 5h3V3H5v5h2V5zm12 0v3h2V3h-5v2h3z"/></svg>
             </button>
         </div>
         <div id="game-title">BUZA</div>
         <div id="score">Rezultat: <span id="scoreNum">0</span></div>
-        <canvas id="gameCanvas" width="380" height="180"></canvas>
+        <canvas id="gameCanvas" width="350" height="160"></canvas>
         <button id="restartBtn" style="display:none;">Ponovo</button>
-        <audio id="sliceSound" preload="auto">
-            <source src="slice.m4a" type="audio/mp4">
-            <source src="slice.mp3" type="audio/mpeg">
-        </audio>
+        <audio id="sliceSound" src="slice.mp3" preload="auto"></audio>
     </div>
     <div class="footer">
         &copy; 2024 | Buza igra | harisbasic404
@@ -164,7 +133,6 @@
     const scoreNum = document.getElementById('scoreNum');
     const restartBtn = document.getElementById('restartBtn');
     const sliceSound = document.getElementById('sliceSound');
-    const timerSpan = document.getElementById('timer');
 
     // --- Assets
     const headImg = new Image();
@@ -172,7 +140,7 @@
     // --- Glava objekat
     let head = {
         x: 80, y: 340, w: 80, h: 80,
-        vx: 2 + Math.random()*2, vy: -(14 + Math.random()*6),
+        vx: 2 + Math.random()*2, vy: -(14 + Math.random()*6), // veći skok!
         gravity: 0.32,
         alive: true,
         sliced: false,
@@ -180,16 +148,14 @@
         vrot: (Math.random()-0.5)*0.2
     };
     let score = 0, isGameOver = false;
-    let timer = 30, intervalId = null, timerActive = false;
-
     // --- Responzivni canvas
     function resizeCanvas() {
         if (window.innerWidth < 600) {
-            canvas.width = window.innerWidth * 0.99;
-            canvas.height = canvas.width * 0.49;
+            canvas.width = window.innerWidth * 0.98;
+            canvas.height = canvas.width * 0.47;
         } else {
-            canvas.width = 380;
-            canvas.height = 180;
+            canvas.width = 350;
+            canvas.height = 160;
         }
         W = canvas.width;
         H = canvas.height;
@@ -234,7 +200,6 @@
         if(head.y > H) {
             head.alive = false;
             isGameOver = true;
-            stopTimer();
             restartBtn.style.display = "block";
         }
     }
@@ -245,41 +210,14 @@
     }
     headImg.onload = () => loop();
 
-    // --- Timer
-    function startTimer() {
-        timer = 30;
-        timerActive = true;
-        timerSpan.textContent = "VRIJEME: " + timer;
-        intervalId = setInterval(() => {
-            if(!timerActive) return;
-            timer--;
-            timerSpan.textContent = "VRIJEME: " + timer;
-            if(timer <= 0) {
-                timerActive = false;
-                clearInterval(intervalId);
-                isGameOver = true;
-                head.alive = false;
-                restartBtn.style.display = "block";
-                timerSpan.textContent = "VRIJEME: 0";
-            }
-        }, 1000);
-    }
-    function stopTimer() {
-        timerActive = false;
-        if (intervalId) clearInterval(intervalId);
-    }
-
     // --- Kontrole
     function pointInHead(x, y) {
         return x > head.x && x < head.x+head.w && y > head.y && y < head.y+head.h;
     }
     function trySlice(x, y, px, py) {
-        if(!head.alive || isGameOver) return;
+        if(!head.alive) return;
         if(pointInHead(x, y) || (px && pointInHead(px, py))) {
-            if (sliceSound) {
-                sliceSound.currentTime = 0;
-                sliceSound.play();
-            }
+            if (sliceSound) { sliceSound.currentTime = 0; sliceSound.play(); }
             head.sliced = true;
             score++;
             scoreNum.textContent = score;
@@ -289,8 +227,6 @@
     // Dodir/mis
     let dragging=false, lastX=0, lastY=0;
     canvas.addEventListener('mousedown', e=>{
-        if(isGameOver) return;
-        if(!timerActive) startTimer();
         dragging=true;
         lastX = e.offsetX; lastY = e.offsetY;
     });
@@ -303,8 +239,6 @@
     canvas.addEventListener('mouseleave', ()=>dragging=false);
     // Touch
     canvas.addEventListener('touchstart', e=>{
-        if(isGameOver) return;
-        if(!timerActive) startTimer();
         dragging=true;
         const rect = canvas.getBoundingClientRect();
         const t = e.touches[0];
@@ -329,7 +263,7 @@
         head.w = 80;
         head.h = 80;
         head.vx = 2 + Math.random()*2;
-        head.vy = - (14 + Math.random()*7);
+        head.vy = - (14 + Math.random()*7); // veći skok!
         head.gravity = 0.32;
         head.sliced = false;
         head.alive = true;
@@ -343,9 +277,6 @@
         scoreNum.textContent = 0;
         spawnHead();
         restartBtn.style.display = "none";
-        timerSpan.textContent = "VRIJEME: 30";
-        stopTimer();
-        timerActive = false;
         loop();
     });
 
